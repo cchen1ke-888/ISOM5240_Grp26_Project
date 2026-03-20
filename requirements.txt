@@ -1,6 +1,6 @@
-transformers<5.0.0
 streamlit
 torch
-soundfile
+transformers
 librosa
 numpy
+audioread
