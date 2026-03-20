@@ -28,11 +28,12 @@ def main():
     st.markdown("<h1 style='font-weight: bold;'>👗 UNIQLO User Review Sentiment Analyzer</h1>", unsafe_allow_html=True)
     
     # Simple instructions
-    st.write("Please upload the audio file of a user review:")
+    st.write("Please upload an audio file of the user review you collected from social media:")
     
     # Upload the audio file of a user review
     audio_file = st.file_uploader("", type=['mp3', 'm4a', 'wav'])
-    
+
+    # Step 1: Transcribe an audio file into plain text.
     if audio_file:
         # Save uploaded file temporarily
         with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp:
@@ -40,7 +41,7 @@ def main():
             tmp_path = tmp.name
         
         try:
-            # Transcribe using the function
+            # Transcribe by calling the function
             transcript = transcribe_audio(tmp_path)
             
             # Display the transcript
@@ -49,6 +50,11 @@ def main():
         finally:
             # Clean up temporary file
             os.unlink(tmp_path)
+            
+    # Step 2: Perform sentiment analysis on the transcribed text using the fine-tuned model I uploaded to Hugging Face.
+
+
+
 
 if __name__ == "__main__":
     main()
