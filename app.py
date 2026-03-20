@@ -19,8 +19,7 @@ def load_models():
     asr_model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
     asr_model.eval()
     
-    # Pipeline 2: Sentiment Analysis - Using a simple pipeline for now
-    # REPLACE THIS WITH YOUR FINE-TUNED MODEL LATER
+    # Pipeline 2: Sentiment Analysis
     sentiment_pipeline = pipeline(
         "text-classification",
         model="distilbert-base-uncased-finetuned-sst-2-english"
@@ -29,18 +28,25 @@ def load_models():
     return processor, asr_model, sentiment_pipeline
 
 # ============================================
-# TRANSCRIPTION FUNCTION
+# TRANSCRIPTION FUNCTION (WAV ONLY)
 # ============================================
 def transcribe_audio(audio_bytes, processor, model):
-    """Convert uploaded audio to text"""
+    """Convert uploaded WAV audio to text"""
     try:
-        # Use librosa to load audio
-        import librosa
-        audio_array, sample_rate = librosa.load(
-            io.BytesIO(audio_bytes), 
-            sr=16000,
-            mono=True
-        )
+        # Use soundfile for WAV files (works reliably)
+        import soundfile as sf
+        
+        # Read WAV file from bytes
+        audio_array, sample_rate = sf.read(io.BytesIO(audio_bytes))
+        
+        # Ensure mono
+        if len(audio_array.shape) > 1:
+            audio_array = audio_array.mean(axis=1)
+        
+        # Resample to 16kHz if needed
+        if sample_rate != 16000:
+            import librosa
+            audio_array = librosa.resample(audio_array, orig_sr=sample_rate, target_sr=16000)
         
         # Process audio
         input_values = processor(audio_array, sampling_rate=16000, return_tensors="pt").input_values
@@ -66,7 +72,6 @@ def analyze_sentiment(text, sentiment_pipeline):
         label = result['label']
         score = result['score']
         
-        # Convert to recommended/not recommended format
         if label == "POSITIVE":
             return "recommended", score
         else:
@@ -95,18 +100,19 @@ def main():
     st.markdown(
         """
         <div style='background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 20px;'>
-            <p><strong>📌 Instructions:</strong> Upload an audio file containing a fashion review.</p>
+            <p><strong>📌 Instructions:</strong> Upload a <strong>WAV audio file</strong> containing a fashion review.</p>
             <p>The system will transcribe the audio and analyze the sentiment.</p>
+            <p><em>Note: For best results, use WAV format. MP3 support coming soon.</em></p>
         </div>
         """,
         unsafe_allow_html=True
     )
     
-    # File uploader
+    # File uploader - WAV only for now
     uploaded_file = st.file_uploader(
-        "Choose an audio file",
-        type=["wav", "mp3", "m4a", "flac"],
-        help="Upload MP3, WAV, M4A, or FLAC files"
+        "Choose a WAV audio file",
+        type=["wav"],
+        help="Upload WAV files only for now"
     )
     
     if uploaded_file is not None:
@@ -127,6 +133,11 @@ def main():
             audio_bytes = uploaded_file.read()
             transcript = transcribe_audio(audio_bytes, processor, asr_model)
         
+        # Check if transcription failed
+        if transcript.startswith("[Error:"):
+            st.error(transcript)
+            st.stop()
+        
         st.markdown("**📝 Audio Transcript:**")
         st.info(transcript)
         
@@ -138,6 +149,11 @@ def main():
         
         with st.spinner("Analyzing..."):
             sentiment, confidence = analyze_sentiment(transcript, sentiment_pipeline)
+        
+        # Check if sentiment analysis failed
+        if sentiment.startswith("[Error:"):
+            st.error(sentiment)
+            st.stop()
         
         # Display result with color coding
         if sentiment == "recommended":
