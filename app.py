@@ -4,6 +4,8 @@ import io
 import numpy as np
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 import librosa
+import warnings
+warnings.filterwarnings("ignore")
 
 # Load model (cached for performance)
 @st.cache_resource
@@ -13,49 +15,79 @@ def load_model():
     model.eval()
     return processor, model
 
-# Transcribe function - works with MP3, WAV, M4A, etc.
+# Transcribe function - uses librosa ONLY
 def transcribe_audio(audio_bytes, processor, model):
-    # Save bytes to temporary file-like object
-    with io.BytesIO(audio_bytes) as buf:
-        # Load audio using librosa (handles MP3, WAV, etc.)
-        audio_array, sample_rate = librosa.load(buf, sr=16000, mono=True)
-    
-    # Process audio for Wav2Vec2
-    input_values = processor(audio_array, sampling_rate=sample_rate, return_tensors="pt").input_values
-    
-    with torch.no_grad():
-        logits = model(input_values).logits
-    
-    predicted_ids = torch.argmax(logits, dim=-1)
-    transcription = processor.batch_decode(predicted_ids)[0]
-    
-    return transcription
+    try:
+        # Use librosa to load audio directly from bytes
+        # librosa.load can handle MP3, WAV, M4A, etc.
+        audio_array, sample_rate = librosa.load(
+            io.BytesIO(audio_bytes), 
+            sr=16000,           # Resample to 16kHz for Wav2Vec2
+            mono=True           # Convert to mono
+        )
+        
+        # Process audio
+        input_values = processor(audio_array, sampling_rate=16000, return_tensors="pt").input_values
+        
+        with torch.no_grad():
+            logits = model(input_values).logits
+        
+        predicted_ids = torch.argmax(logits, dim=-1)
+        transcription = processor.batch_decode(predicted_ids)[0]
+        
+        return transcription
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 # Main app
 def main():
-    st.title("UNIQLO Fashion Review Analyzer")
-    st.write("Upload an audio file to transcribe and analyze sentiment.")
+    st.set_page_config(page_title="UNIQLO Review Analyzer", page_icon="👗")
     
-    uploaded_file = st.file_uploader("Choose an audio file", type=["wav", "mp3", "m4a", "flac"])
+    # Title
+    st.markdown("# 👗 UNIQLO Fashion Review Analyzer")
+    st.markdown("Upload an audio file to transcribe and analyze sentiment.")
+    
+    # File uploader
+    uploaded_file = st.file_uploader(
+        "Choose an audio file",
+        type=["wav", "mp3", "m4a", "flac", "ogg"],
+        help="Upload MP3, WAV, M4A, FLAC, or OGG files"
+    )
     
     if uploaded_file is not None:
-        st.audio(uploaded_file, format="audio/wav")
+        # Display audio player
+        st.audio(uploaded_file)
         
-        processor, model = load_model()
+        # Load models
+        with st.spinner("Loading models..."):
+            processor, model = load_model()
         
-        with st.spinner("Transcribing..."):
+        # Transcribe
+        with st.spinner("Transcribing audio..."):
             audio_bytes = uploaded_file.read()
             transcript = transcribe_audio(audio_bytes, processor, model)
         
-        st.write("**Audio Transcript:**", transcript)
+        # Display transcript
+        st.markdown("---")
+        st.markdown("### 📝 Audio Transcript")
+        st.info(transcript)
         
-        # Simple sentiment analysis (placeholder - replace with your model)
-        if "love" in transcript.lower() or "great" in transcript.lower() or "perfect" in transcript.lower():
-            sentiment = "recommended"
+        # Simple sentiment analysis (replace with your fine-tuned model later)
+        positive_words = ["love", "great", "perfect", "amazing", "beautiful", "good", "nice", "recommend"]
+        negative_words = ["bad", "poor", "terrible", "awful", "disappointed", "hate", "worst"]
+        
+        transcript_lower = transcript.lower()
+        
+        if any(word in transcript_lower for word in positive_words):
+            sentiment = "✅ recommended"
+        elif any(word in transcript_lower for word in negative_words):
+            sentiment = "❌ not recommended"
         else:
-            sentiment = "not recommended"
+            sentiment = "⚖️ neutral"
         
-        st.write("**Sentiment Result:**", sentiment)
+        st.markdown("### 💭 Sentiment Result")
+        st.success(f"**{sentiment}**")
 
 if __name__ == "__main__":
     main()
