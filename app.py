@@ -28,7 +28,7 @@ def main():
     st.markdown("<h1 style='font-weight: bold;'>👗 UNIQLO User Review Sentiment Analyzer</h1>", unsafe_allow_html=True)
     
     # Simple instructions
-    st.write("Please upload an audio file of the user review you collected from social media:")
+    st.write("Please upload an audio file of the user review about UNIQLO you collected from social media:")
     
     # Upload the audio file of a user review
     audio_file = st.file_uploader("", type=['mp3', 'm4a', 'wav'])
