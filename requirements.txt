@@ -3,4 +3,3 @@ transformers<5.0.0
 torch
 soundfile
 librosa
-numpy
