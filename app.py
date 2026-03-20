@@ -9,9 +9,9 @@ def main():
     st.markdown("<h1 style='font-weight: bold;'>Audio Transcription</h1>", unsafe_allow_html=True)
     
     # Simple instructions
-    st.write("Upload an audio file (mp3 or m4a):")
+    st.write("Please upload the audio file of a user review:")
     
-    # File upload
+    # Upload the audio file of a user review
     audio_file = st.file_uploader("", type=['mp3', 'm4a', 'wav'])
     
     if audio_file:
@@ -28,7 +28,7 @@ def main():
                                model="facebook/wav2vec2-base-960h")
         result = transcriber(audio)
         
-        # Display transcript
+        # Display the transcript
         st.write(f"**Audio Transcript:** {result['text']}")
         
         # Clean up
