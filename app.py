@@ -25,7 +25,7 @@ def main():
         layout="wide")
     
     # Large bold title
-    st.markdown("<h1 style='font-weight: bold;'>UNIQLO User Review Sentiment Analyzer</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='font-weight: bold;'>👗 UNIQLO User Review Sentiment Analyzer</h1>", unsafe_allow_html=True)
     
     # Simple instructions
     st.write("Please upload the audio file of a user review:")
