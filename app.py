@@ -1,8 +1,9 @@
 import streamlit as st
 import torch
-import soundfile as sf
 import io
-from transformers import pipeline, Wav2Vec2Processor, Wav2Vec2ForCTC
+import numpy as np
+from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
+import librosa
 
 # Load model (cached for performance)
 @st.cache_resource
@@ -12,12 +13,14 @@ def load_model():
     model.eval()
     return processor, model
 
-# Transcribe function
+# Transcribe function - works with MP3, WAV, M4A, etc.
 def transcribe_audio(audio_bytes, processor, model):
-    # Read audio
-    audio_array, sample_rate = sf.read(io.BytesIO(audio_bytes))
+    # Save bytes to temporary file-like object
+    with io.BytesIO(audio_bytes) as buf:
+        # Load audio using librosa (handles MP3, WAV, etc.)
+        audio_array, sample_rate = librosa.load(buf, sr=16000, mono=True)
     
-    # Process audio
+    # Process audio for Wav2Vec2
     input_values = processor(audio_array, sampling_rate=sample_rate, return_tensors="pt").input_values
     
     with torch.no_grad():
@@ -28,13 +31,12 @@ def transcribe_audio(audio_bytes, processor, model):
     
     return transcription
 
-
 # Main app
 def main():
     st.title("UNIQLO Fashion Review Analyzer")
     st.write("Upload an audio file to transcribe and analyze sentiment.")
     
-    uploaded_file = st.file_uploader("Choose an audio file", type=["wav", "mp3", "m4a"])
+    uploaded_file = st.file_uploader("Choose an audio file", type=["wav", "mp3", "m4a", "flac"])
     
     if uploaded_file is not None:
         st.audio(uploaded_file, format="audio/wav")
@@ -48,8 +50,7 @@ def main():
         st.write("**Audio Transcript:**", transcript)
         
         # Simple sentiment analysis (placeholder - replace with your model)
-        # For now, just a simple keyword check
-        if "love" in transcript.lower() or "great" in transcript.lower():
+        if "love" in transcript.lower() or "great" in transcript.lower() or "perfect" in transcript.lower():
             sentiment = "recommended"
         else:
             sentiment = "not recommended"
