@@ -41,23 +41,6 @@ def main():
         page_icon="👗",
         layout="wide")
     
-    # Custom CSS for styling without background colors
-    st.markdown("""
-        <style>
-        .transcript-card {
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid #1f3e5c;
-        }
-        .sentiment-card {
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
     # Large bold title
     st.markdown("<h1 style='font-weight: bold;'>👗 UNIQLO User Review Sentiment Analyzer</h1>", unsafe_allow_html=True)
     
