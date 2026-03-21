@@ -20,7 +20,7 @@ def transcribe_audio(audio_path):
     # Capitalize first letter of the entire text
     text = text[0].upper() + text[1:] if text else text
     
-    return result['text']
+    return text
 
 def analyze_sentiment(text):
     # Load the sentiment analysis pipeline with the fine-tuned model I uploaded to Hugging Face.
