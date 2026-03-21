@@ -15,10 +15,13 @@ def transcribe_audio(audio_path):
     # Transcribe
     result = transcriber(audio)
 
-    # Convert to lowercase and capitalize first letter of each sentence
+    # Convert to lowercase and capitalize the first letter of each sentence
     text = result['text'].lower()
     # Capitalize first letter of the entire text
     text = text[0].upper() + text[1:] if text else text
+    # Add period after text
+    if text and not text.endswith('.'):
+        text = text + '.'
     
     return text
 
