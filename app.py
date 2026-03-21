@@ -40,7 +40,7 @@ def main():
     st.write("Please upload an audio file of the user review about UNIQLO you collected from social media:")
     
     # Upload the audio file of a user review
-    audio_file = st.file_uploader("", type=['mp3', 'm4a', 'wav'])
+    audio_file = st.file_uploader("", type=['mp3', 'wav'])
 
     # Step 1: Transcribe an audio file into plain text.
     if audio_file:
