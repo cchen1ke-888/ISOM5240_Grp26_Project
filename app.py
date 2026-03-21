@@ -54,7 +54,7 @@ def main():
             transcript = transcribe_audio(tmp_path)
             
             # Display the transcript
-            st.write(f"**Audio Transcript:** {transcript}")
+            st.info(f"**Audio Transcript:** {transcript}")
             
         # Step 2: Perform sentiment analysis on the transcribed text using the fine-tuned model.
             sentiment_result = analyze_sentiment(transcript)
