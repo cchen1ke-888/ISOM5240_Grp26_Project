@@ -17,6 +17,15 @@ def transcribe_audio(audio_path):
     
     return result['text']
 
+def analyze_sentiment(text):
+    # Load the sentiment analysis pipeline with the fine-tuned model I uploaded to Hugging Face.
+    sentiment_pipeline = pipeline("sentiment-analysis",model="cykChloe/ISOM5240-Grp26-Sentiment")
+    
+    # Analyze sentiment
+    result = sentiment_pipeline(text)
+    
+    return result[0]
+
 def main():
     # Page Configuration
     st.set_page_config(
@@ -51,10 +60,30 @@ def main():
             # Clean up temporary file
             os.unlink(tmp_path)
             
-    # Step 2: Perform sentiment analysis on the transcribed text using the fine-tuned model I uploaded to Hugging Face.
-
-
-
+    # Step 2: Perform sentiment analysis on the transcribed text using the fine-tuned model.
+    if transcript:
+        # Sentiment analysis by calling the function
+        sentiment_result = analyze_sentiment(transcript)
+                        
+        # Display sentiment results
+        sentiment_label = sentiment_result['label']
+        sentiment_score = sentiment_result['score']
+            
+        # Map label to recommended/not recommended
+        if sentiment_label == "1" or sentiment_label.upper() == "POSITIVE":
+            recommendation = "Recommended"
+            emoji = "👍"
+            st.success(f"**Recommendation:** {recommendation} {emoji}")
+        elif sentiment_label == "0" or sentiment_label.upper() == "NEGATIVE":
+            recommendation = "Not Recommended"
+            emoji = "👎"
+            st.error(f"**Recommendation:** {recommendation} {emoji}")
+        else:
+            recommendation = sentiment_label
+            st.info(f"**Recommendation:** {recommendation}")
+            
+        # Display confidence
+        st.write(f"**Confidence:** {sentiment_score:.2%}")
 
 if __name__ == "__main__":
     main()
