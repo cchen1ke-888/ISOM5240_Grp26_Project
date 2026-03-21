@@ -27,7 +27,7 @@ def transcribe_audio(audio_path):
 
 def analyze_sentiment(text):
     # Load the sentiment analysis pipeline with the fine-tuned model I uploaded to Hugging Face.
-    sentiment_pipeline = pipeline("sentiment-analysis",model="cykChloe/ISOM5240-Grp26-Uniqlo-Sentiment")
+    sentiment_pipeline = pipeline("sentiment-analysis",model="cykChloe/ISOM5240-Grp26-Sentiment")
     
     # Analyze sentiment
     result = sentiment_pipeline(text)
