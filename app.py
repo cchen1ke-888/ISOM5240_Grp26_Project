@@ -41,21 +41,18 @@ def main():
         page_icon="👗",
         layout="wide")
     
-    # Custom CSS for better styling of transcript and sentiment sections
+    # Custom CSS for styling without background colors
     st.markdown("""
         <style>
         .transcript-card {
-            background-color: #f8f9fa;
             padding: 1.5rem;
             border-radius: 10px;
             margin-bottom: 1.5rem;
             border-left: 4px solid #1f3e5c;
         }
         .sentiment-card {
-            background-color: #ffffff;
             padding: 1.5rem;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 1rem;
         }
         </style>
