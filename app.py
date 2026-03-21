@@ -48,7 +48,7 @@ def main():
         with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp:
             tmp.write(audio_file.getvalue())
             tmp_path = tmp.name
-        
+
         try:
             # Transcribe by calling the function
             transcript = transcribe_audio(tmp_path)
@@ -56,34 +56,33 @@ def main():
             # Display the transcript
             st.write(f"**Audio Transcript:** {transcript}")
             
+            # Step 2: Perform sentiment analysis on the transcribed text using the fine-tuned model.
+            # Sentiment analysis by calling the function
+            sentiment_result = analyze_sentiment(transcript)
+                        
+            # Display sentiment results
+            sentiment_label = sentiment_result['label']
+            sentiment_score = sentiment_result['score']
+            
+            # Map label to recommended/not recommended
+            if sentiment_label == "1" or sentiment_label.upper() == "POSITIVE":
+                recommendation = "Recommended"
+                emoji = "👍"
+                st.success(f"**Recommendation:** {recommendation} {emoji}")
+            elif sentiment_label == "0" or sentiment_label.upper() == "NEGATIVE":
+                recommendation = "Not Recommended"
+                emoji = "👎"
+                st.error(f"**Recommendation:** {recommendation} {emoji}")
+            else:
+                recommendation = sentiment_label
+                st.info(f"**Recommendation:** {recommendation}")
+            
+            # Display confidence
+            st.write(f"**Confidence:** {sentiment_score:.2%}")
+            
         finally:
             # Clean up temporary file
             os.unlink(tmp_path)
             
-    # Step 2: Perform sentiment analysis on the transcribed text using the fine-tuned model.
-    if transcript:
-        # Sentiment analysis by calling the function
-        sentiment_result = analyze_sentiment(transcript)
-                        
-        # Display sentiment results
-        sentiment_label = sentiment_result['label']
-        sentiment_score = sentiment_result['score']
-            
-        # Map label to recommended/not recommended
-        if sentiment_label == "1" or sentiment_label.upper() == "POSITIVE":
-            recommendation = "Recommended"
-            emoji = "👍"
-            st.success(f"**Recommendation:** {recommendation} {emoji}")
-        elif sentiment_label == "0" or sentiment_label.upper() == "NEGATIVE":
-            recommendation = "Not Recommended"
-            emoji = "👎"
-            st.error(f"**Recommendation:** {recommendation} {emoji}")
-        else:
-            recommendation = sentiment_label
-            st.info(f"**Recommendation:** {recommendation}")
-            
-        # Display confidence
-        st.write(f"**Confidence:** {sentiment_score:.2%}")
-
 if __name__ == "__main__":
     main()
