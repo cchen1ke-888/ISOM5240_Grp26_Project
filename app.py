@@ -75,14 +75,14 @@ def main():
             if sentiment_label == "1" or sentiment_label.upper() == "POSITIVE":
                 recommendation = "Recommended"
                 emoji = "👍"
-                st.success(f"**Recommendation:** {recommendation} {emoji}")
+                st.success(f"**Sentiment Result:** {recommendation} {emoji}")
             elif sentiment_label == "0" or sentiment_label.upper() == "NEGATIVE":
                 recommendation = "Not Recommended"
                 emoji = "👎"
-                st.error(f"**Recommendation:** {recommendation} {emoji}")
+                st.error(f"**Sentiment Result:** {recommendation} {emoji}")
             else:
                 recommendation = sentiment_label
-                st.info(f"**Recommendation:** {recommendation}")
+                st.info(f"**Sentiment Result:** {recommendation}")
                 
             # Display confidence
             st.write(f"**Confidence:** {sentiment_score:.2%}")
