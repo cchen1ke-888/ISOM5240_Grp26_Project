@@ -85,7 +85,7 @@ def main():
                 st.info(f"**Sentiment Result:** {recommendation}")
                 
             # Display confidence
-            st.write(f"**Confidence:** {sentiment_score:.2%}")
+            st.write(f"**Confidence Score:** {sentiment_score:.2%}")
             
         finally:
             # Clean up temporary file
